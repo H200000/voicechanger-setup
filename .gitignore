@@ -1,0 +1,19 @@
+# Builds / telechargements lourds (ne jamais committer les Go de VCClient)
+vcclient/
+*.zip
+*.7z
+*.pth
+*.index
+*.onnx
+*.ckpt
+
+# Modeles de voix
+models/
+
+# Divers OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
