@@ -93,6 +93,8 @@ Il télécharge Applio, installe son propre Miniconda + dépendances (aucun Pyth
 > powershell -ExecutionPolicy Bypass -File .\install-applio.ps1 -InstallDir D:\Applio
 > ```
 
+> 💡 **Entraînement plus rapide sur GPU loué (Vast.ai / RunPod)** : ton 8 Go local te limite au batch 6-8. Louer un RTX 4090 (24 Go, ~0,30 $/h) entraîne bien plus vite. Guide complet : **[TRAINING-VAST-AI.md](TRAINING-VAST-AI.md)**.
+
 ### Préparer le dataset (l'étape qui détermine tout)
 
 La **propreté** de l'audio compte plus que la durée. Un dataset court mais nickel bat un long dataset bruité.
