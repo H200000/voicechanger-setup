@@ -79,6 +79,67 @@ Micro réel ──▶ VCClient (transforme) ──▶ CABLE Input
 
 ---
 
+## 🎓 Entraîner ta propre voix (Applio)
+
+VCClient **transforme** la voix mais n'**entraîne** pas de modèle. Pour créer ta propre voix RVC (qualité maximale, réutilisable en temps réel dans VCClient), on installe **[Applio](https://github.com/IAHispano/Applio)** — l'outil d'entraînement RVC de référence en 2026 (maintenu, GUI, installeur one-click).
+
+### Installation
+
+**Double-clic sur `INSTALL-TRAINING.bat`** (⚠️ **pas** en administrateur — Applio le refuse, le script tourne en utilisateur normal).
+Il télécharge Applio, installe son propre Miniconda + dépendances (aucun Python à installer toi-même, compte 10-25 min), et crée un raccourci **« Applio (Training) »** sur le Bureau.
+
+> Installé par défaut dans `C:\Applio`. Pour un autre dossier (ASCII, sans espaces) :
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File .\install-applio.ps1 -InstallDir D:\Applio
+> ```
+
+### Préparer le dataset (l'étape qui détermine tout)
+
+La **propreté** de l'audio compte plus que la durée. Un dataset court mais nickel bat un long dataset bruité.
+
+| Durée d'audio propre | Résultat |
+|---|---|
+| < 5 min | Trop court pour entraîner → préfère le **zero-shot Seed-VC** (voir plus bas) |
+| **5 min** | Plancher. OK si la voix est très distinctive et l'audio impeccable |
+| **10-30 min** | ✅ **La zone idéale.** Meilleur rapport qualité/effort |
+| 30-50 min | Voix plus robuste, rendements décroissants au-delà |
+
+Règles pour un audio « propre » :
+- **Zéro bruit de fond** (ventilo, clavier, écho de pièce), zéro musique, **une seule personne**
+- **Varie les intonations** (aigu/grave, quelques émotions) → sinon la voix sort robotique
+- Si l'audio est sale, nettoie/sépare la voix d'abord (ex. **UVR – Ultimate Vocal Remover**)
+
+> **Trop peu d'audio (≈ 2 min) ?** N'entraîne pas (sur-apprentissage garanti). Utilise le **zero-shot Seed-VC** directement dans VCClient : tu donnes juste l'échantillon, pas d'entraînement. Avec peu d'audio, le zero-shot bat un RVC mal entraîné.
+
+### Entraîner
+
+1. Lance Applio → onglet **Train**
+2. Nomme le modèle, pointe vers ton dossier de dataset
+3. **Preprocess Dataset** → **Extract Features** → **Train Model**
+4. **Batch size** : avec **8 Go de VRAM**, mets **6-8** (pas plus)
+5. **Écoute les checkpoints** sauvegardés et **arrête quand c'est bon** : trop d'epochs = voix robotique (mauvaise généralisation), pas l'inverse
+
+### Charger ta voix dans VCClient (temps réel)
+
+Après l'entraînement, récupère **2 fichiers** dans `C:\Applio\logs\<nom_du_modele>\` :
+- `<nom>.pth` (le modèle)
+- `added_*.index` (l'index — améliore la ressemblance)
+
+Dans VCClient : **Model = RVC**, charge le `.pth` **et** le `.index`, clique **Start** et parle.
+
+### RTX série 50 (Blackwell)
+
+Les cartes **RTX 50xx** (architecture Blackwell, `sm_120`) exigent **CUDA 12.8+ / PyTorch récent**. Si l'entraînement plante avec une erreur du type `sm_120 not supported` ou `CUDA capability` :
+
+```bat
+REM Depuis le dossier Applio (ex C:\Applio), réinstalle torch en cu128 dans l'env Applio :
+env\python.exe -m pip install --upgrade --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+```
+
+> ⚖️ **Légal / éthique** (rappel) : n'entraîne une voix réelle qu'avec l'accord de la personne. Générer un dataset via une voix TTS commerciale (ElevenLabs, etc.) peut violer leurs CGU. Usage perso/créatif/consenti uniquement.
+
+---
+
 ## 🧰 Options avancées
 
 Le script accepte des paramètres (via PowerShell) :
